@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eduface ROI Calculator</title>
+  <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0b1c28;
+      --card:      #0f2233;
+      --card-alt:  #122438;
+      --green:     #00e87a;
+      --green-dim: #00c468;
+      --green-bg:  #0d3322;
+      --green-border: #1a5c3a;
+      --white:     #ffffff;
+      --muted:     rgba(255,255,255,0.55);
+      --border:    rgba(255,255,255,0.08);
+      --radius:    16px;
+    }
+
+    body {
+      background: var(--bg);
+      font-family: 'Inter', sans-serif;
+      color: var(--white);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
+    }
+
+    .wrapper {
+      width: 100%;
+      max-width: 1100px;
+    }
+
+    .headline {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .headline h1 {
+      font-family: 'League Spartan', sans-serif;
+      font-size: clamp(28px, 4vw, 44px);
+      font-weight: 700;
+      line-height: 1.15;
+      max-width: 640px;
+      margin: 0 auto 12px;
+    }
+
+    .headline p {
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    @media (max-width: 720px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    /* ---- LEFT PANEL ---- */
+    .inputs {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 36px;
+    }
+
+    .input-group {
+      margin-bottom: 36px;
+    }
+
+    .input-group:last-of-type { margin-bottom: 0; }
+
+    .input-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 16px;
+    }
+
+    .input-label {
+      font-size: 15px;
+      color: var(--white);
+      font-weight: 400;
+    }
+
+    .input-value {
+      font-family: 'League Spartan', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--green);
+      letter-spacing: -0.3px;
+    }
+
+    /* Custom range slider */
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 3px;
+      border-radius: 2px;
+      outline: none;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 0 3px rgba(0, 232, 122, 0.2);
+      cursor: pointer;
+      transition: box-shadow 0.15s ease;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      box-shadow: 0 0 0 6px rgba(0, 232, 122, 0.25);
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--green);
+      border: none;
+      cursor: pointer;
+    }
+
+    .range-limits {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 28px 0 20px;
+    }
+
+    .fixed-rate {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .fixed-rate span:first-child {
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .fixed-rate span:last-child {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    /* ---- RIGHT PANEL ---- */
+    .results {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .result-main {
+      background: linear-gradient(135deg, #0e3b24 0%, #0a2e1c 60%, #071e13 100%);
+      border: 1px solid var(--green-border);
+      border-radius: var(--radius);
+      padding: 36px;
+    }
+
+    .result-main-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--green-dim);
+      margin-bottom: 12px;
+    }
+
+    .result-main-value {
+      font-family: 'League Spartan', sans-serif;
+      font-size: clamp(52px, 8vw, 80px);
+      font-weight: 800;
+      color: var(--green);
+      line-height: 1;
+      letter-spacing: -2px;
+      margin-bottom: 16px;
+    }
+
+    .result-main-sub {
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .result-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .result-card {
+      background: var(--card-alt);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+
+    .result-card-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .result-card-value {
+      font-family: 'League Spartan', sans-serif;
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: -0.5px;
+    }
+
+    .footnote {
+      background: var(--card-alt);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 22px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .footnote-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      flex-shrink: 0;
+      margin-top: 5px;
+    }
+
+    .footnote p {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="headline">
+      <h1>See the financial return for your institution</h1>
+      <p>Adjust your institution's numbers to see the financial return.</p>
+    </div>
+
+    <div class="grid">
+      <!-- LEFT: Inputs -->
+      <div class="inputs">
+        <!-- Students -->
+        <div class="input-group">
+          <div class="input-row">
+            <span class="input-label">Number of students</span>
+            <span class="input-value" id="val-students">10,000</span>
+          </div>
+          <input type="range" id="slider-students" min="1000" max="200000" step="1000" value="10000"
+            oninput="updateSlider(this, 'val-students', formatNumber); calculate()" />
+          <div class="range-limits"><span>1,000</span><span>200,000</span></div>
+        </div>
+
+        <!-- Assignments -->
+        <div class="input-group">
+          <div class="input-row">
+            <span class="input-label">Assignments per student per year</span>
+            <span class="input-value" id="val-assignments">6 / year</span>
+          </div>
+          <input type="range" id="slider-assignments" min="1" max="20" step="1" value="6"
+            oninput="updateSlider(this, 'val-assignments', v => v + ' / year'); calculate()" />
+          <div class="range-limits"><span>1</span><span>20</span></div>
+        </div>
+
+        <!-- Marking time -->
+        <div class="input-group">
+          <div class="input-row">
+            <span class="input-label">Average marking time per assignment</span>
+            <span class="input-value" id="val-time">20 min</span>
+          </div>
+          <input type="range" id="slider-time" min="5" max="60" step="1" value="20"
+            oninput="updateSlider(this, 'val-time', v => v + ' min'); calculate()" />
+          <div class="range-limits"><span>5</span><span>60</span></div>
+        </div>
+
+        <hr class="divider" />
+
+        <div class="fixed-rate">
+          <span>Assumed lecturer hourly rate</span>
+          <span>$45 / hr</span>
+        </div>
+      </div>
+
+      <!-- RIGHT: Results -->
+      <div class="results">
+        <div class="result-main">
+          <div class="result-main-label">Estimated value saved / year</div>
+          <div class="result-main-value" id="out-value">$432K</div>
+          <div class="result-main-sub" id="out-sub">9,600 hours of lecturer time reclaimed at $45/hr</div>
+        </div>
+
+        <div class="result-cards">
+          <div class="result-card">
+            <div class="result-card-label">Hours saved / year</div>
+            <div class="result-card-value" id="out-hours">9,600</div>
+          </div>
+          <div class="result-card">
+            <div class="result-card-label">FTE days reclaimed</div>
+            <div class="result-card-value" id="out-fte">1,200</div>
+          </div>
+        </div>
+
+        <div class="footnote">
+          <div class="footnote-dot"></div>
+          <p>Grading time only. Formative feedback (100% automated by Eduface) is not counted here — the real figure is higher.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const HOURLY_RATE = 45;
+    const SAVED_FRACTION = 0.48; // Eduface automates ~48% of total marking time (grading only)
+
+    function formatNumber(n) {
+      return Number(n).toLocaleString('en-GB');
+    }
+
+    function updateSlider(el, targetId, formatter) {
+      document.getElementById(targetId).textContent = formatter(el.value);
+      updateTrack(el);
+    }
+
+    function updateTrack(el) {
+      const min = Number(el.min), max = Number(el.max), val = Number(el.value);
+      const pct = ((val - min) / (max - min)) * 100;
+      el.style.background = `linear-gradient(to right, #00e87a 0%, #00e87a ${pct}%, rgba(255,255,255,0.12) ${pct}%, rgba(255,255,255,0.12) 100%)`;
+    }
+
+    function calculate() {
+      const students    = Number(document.getElementById('slider-students').value);
+      const assignments = Number(document.getElementById('slider-assignments').value);
+      const markingMin  = Number(document.getElementById('slider-time').value);
+
+      const hoursSaved = students * assignments * markingMin * SAVED_FRACTION / 60;
+      const fteDays    = hoursSaved / 8;
+      const valueSaved = hoursSaved * HOURLY_RATE;
+
+      document.getElementById('out-hours').textContent = formatNumber(Math.round(hoursSaved));
+      document.getElementById('out-fte').textContent   = formatNumber(Math.round(fteDays));
+      document.getElementById('out-value').textContent = formatValue(valueSaved);
+      document.getElementById('out-sub').textContent   =
+        `${formatNumber(Math.round(hoursSaved))} hours of lecturer time reclaimed at $${HOURLY_RATE}/hr`;
+    }
+
+    function formatValue(n) {
+      if (n >= 1_000_000) return '$' + (n / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
+      if (n >= 1_000)     return '$' + Math.round(n / 1_000) + 'K';
+      return '$' + Math.round(n);
+    }
+
+    // Init track fills
+    document.querySelectorAll('input[type="range"]').forEach(updateTrack);
+    calculate();
+  </script>
+</body>
+</html>
